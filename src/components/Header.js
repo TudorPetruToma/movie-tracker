@@ -15,7 +15,7 @@ export default function Header() {
   const handleToggle = () => setShow(s => !s);
 
   return (
-    <Box bg="gray.800" borderBottom={"1px"} borderColor={"orange.500"}>
+    <Box bg="teal.500">
       <Container p={0} maxW="80em">
         <Flex
           as="nav"
@@ -23,11 +23,11 @@ export default function Header() {
           justify="space-between"
           wrap="wrap"
           padding="1.5rem"
-          color="orange.500"
+          color="white"
         >
           <Flex align="center" mr={5}>
             <Heading as={RouterLink} to="/" size="lg" letterSpacing={'-.1rem'}>
-              Diginatly.tv
+              Movie Tracker
             </Heading>
           </Flex>
 
