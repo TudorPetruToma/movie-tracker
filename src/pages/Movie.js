@@ -9,18 +9,23 @@ import {
   HStack,
   Heading,
   IconButton,
+  List,
+  ListItem,
+  ListIcon,
+  Tooltip
 } from '@chakra-ui/react';
-import { ChevronLeftIcon, AddIcon, CheckIcon } from '@chakra-ui/icons';
+import { ChevronLeftIcon, InfoOutlineIcon, CalendarIcon, StarIcon, TimeIcon } from '@chakra-ui/icons';
 import { useParams, useHistory } from 'react-router-dom';
 import useMovie from '../hooks/useMovie';
 import { buildImageUrl, imageFallback } from '../connectors/tmdb';
-import { getYear, STATUS } from '../utils';
+import { getYear, MovieLength, STATUS } from '../utils';
 import WatchlistButton from '../components/WatchlistButton';
+import HistoryButton from '../components/HistoryButton';
 
 export default function Movie() {
   const { movieId } = useParams();
   const history = useHistory();
-  const [isHistoryActive, setHistoryActive] = React.useState(false); // temp state, for UI only, should be removed when implemented properly
+  //const [isHistoryActive, setHistoryActive] = React.useState(false); // temp state, for UI only, should be removed when implemented properly
 
   const { movie, status, error, updateStatus, updateMovie } = useMovie(movieId);
 
@@ -57,16 +62,10 @@ export default function Movie() {
         />
         <HStack>
           <WatchlistButton movie={movie} status={updateStatus} update={updateMovie} />
-          <IconButton
-            aria-label={isHistoryActive ? 'Remove from history' : 'Mark as watched'}
-            icon={isHistoryActive ? <CheckIcon /> : <AddIcon />}
-            colorScheme="teal"
-            variant={isHistoryActive ? 'solid' : 'outline'}
-            onClick={() => setHistoryActive(a => !a)}
-          />
+          <HistoryButton movie={movie} status={updateStatus} update={updateMovie}/>
         </HStack>
       </HStack>
-      <HStack spacing={3} align="flex-start">
+      <HStack spacing={4} align="flex-start">
         <Box>
           <Image
             src={buildImageUrl(movie.poster_path, 'w300')}
@@ -79,11 +78,35 @@ export default function Movie() {
         <Box w="100%">
           <HStack justify="space-between">
             <Heading as="h2">{movie.title}</Heading>
-            <Text as="span" color="GrayText">
-              {getYear(movie.release_date)}
-            </Text>
+            <Tooltip label={movie.vote_average + "/10"} aria-label={movie.vote_average} placement="auto" bg="teal.600" variant="outline">
+            <Box d="flex" mt="2" alignItems="center">
+          {Array(5)
+            .fill("")
+            .map((_, i) => (
+              <StarIcon
+                key={i}
+                color={i < Math.floor((movie.vote_average)/2) ? Math.round((movie.vote_average)/2) >= 3 ? "teal.500" : "red.500" : "gray.300"}
+              />
+            ))}
+          <Box as="span" ml="2" color="teal.500"  fontSize="md">
+            {movie.vote_count} votes
+          </Box>
+        </Box>
+            </Tooltip>
           </HStack>
-          <Text>{movie.overview}</Text>
+          <List >
+          <ListItem>
+            <ListIcon as={CalendarIcon}/>
+            {getYear(movie.release_date)}
+          </ListItem>
+          <ListItem>
+          <ListIcon as={TimeIcon}/>
+            {MovieLength(movie.runtime)}
+          </ListItem>
+          <Text>Genres:</Text>
+          {movie.genres.map(el => (<ListItem><ListIcon as={InfoOutlineIcon} color="teal.500" />{el.name}</ListItem>))}
+          </List>
+          <Text paddingTop={4}>{movie.overview}</Text>
         </Box>
       </HStack>
     </Container>
